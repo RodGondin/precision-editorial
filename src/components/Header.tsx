@@ -2,8 +2,9 @@
 
 import { Menu, Search, Bell, CircleUserRound } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import { useState } from "react";
+import { Button } from "./ui/button";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,7 +19,7 @@ export function Header() {
   }
 
   return (
-    <header className="w-full border-b-(--border-detail) border-b-2">
+    <header className="w-full border-b-(--border-detail) border-b-2 bg-(--bg-white)">
       <div className="py-4 px-6 flex items-center justify-between max-h-16">
         <div className="flex items-center gap-3 text-(--primary-dark)">
           <button
@@ -65,15 +66,18 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-4">
-          <span className="w-8.5 h-8.5 flex items-center md:hidden">
-            <Search width={20} height={20} strokeWidth={3} />
-          </span>
           <span className="w-8.5 h-8.5 flex items-center">
             <Bell width={20} height={20} strokeWidth={3} />
           </span>
           <span className="w-8.5 h-8.5 items-center hidden md:flex">
             <CircleUserRound width={20} height={20} strokeWidth={3} />
           </span>
+          <Button
+            className="hover:bg-(--primary-hover) cursor-pointer md:inline-flex hidden"
+            onClick={() => redirect("/sign-in")}
+          >
+            Sign In
+          </Button>
         </div>
       </div>
     </header>
