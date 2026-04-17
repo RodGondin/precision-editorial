@@ -15,6 +15,7 @@ type AuthFormCardProps = {
   description: string;
   formId: string;
   submitLabel: string;
+  submitDisabled?: boolean;
   children: ReactNode;
   onSubmit?: FormEventHandler<HTMLFormElement>;
   footer?: ReactNode;
@@ -33,6 +34,7 @@ export function AuthFormCard({
   description,
   formId,
   submitLabel,
+  submitDisabled = false,
   children,
   onSubmit,
   footer,
@@ -66,6 +68,7 @@ export function AuthFormCard({
         <Button
           type="submit"
           form={formId}
+          disabled={submitDisabled}
           className={cn(
             "h-14 w-full cursor-pointer transition-colors hover:bg-(--primary-hover)",
             submitButtonClassName

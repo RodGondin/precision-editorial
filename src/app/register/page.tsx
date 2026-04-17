@@ -6,16 +6,53 @@ import { AuthFormCard } from "@/components/auth-form-card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { signUp } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    console.log({ name, email, password });
+    setError("");
+    setLoading(true);
+
+    try {
+      const data = await signUp.email({
+        name,
+        email,
+        password,
+      });
+
+      if (data.error) {
+        setError(data.error.message ?? "Erro ao cadastrar");
+      } else {
+        const profileResponse = await fetch("/api/profiles/me", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email }),
+        });
+
+        if (!profileResponse.ok) {
+          setError("Conta criada, mas houve erro ao criar o perfil.");
+          return;
+        }
+
+        router.push("/");
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -45,7 +82,8 @@ export default function Register() {
             title="Create Account"
             description="Enter your details to begin your membership."
             formId="register-form"
-            submitLabel="Create Account"
+            submitLabel={loading ? "Creating..." : "Create Account"}
+            submitDisabled={loading}
             onSubmit={handleSubmit}
             headerClassName="pb-8 hidden md:block"
             footerClassName="flex-col gap-2"
@@ -123,6 +161,7 @@ export default function Register() {
                   Must be at least 8 characters with one special symbol.
                 </p>
               </div>
+              {error ? <p className="text-sm text-red-600">{error}</p> : null}
             </div>
           </AuthFormCard>
         </div>

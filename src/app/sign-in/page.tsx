@@ -7,10 +7,41 @@ import { AuthFormCard } from "@/components/auth-form-card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { authClient, signIn } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    setError("");
+    setLoading(true);
+
+    try {
+      const data = await signIn.email({
+        email,
+        password,
+      });
+
+      if (data.error) {
+        setError(data.error.message ?? "Erro ao logar!");
+      } else {
+        router.push("/");
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <main className="w-full bg-(--bg-foreground)">
@@ -20,6 +51,7 @@ export default function SignIn() {
           description="Access your professional currency analysis suite."
           formId="sign-in-form"
           submitLabel="Sign In"
+          onSubmit={handleSubmit}
           cardClassName="max-w-[560px] p-6 md:p-12"
           headerClassName="space-y-2 text-center"
           footer={
