@@ -1,7 +1,13 @@
+"use client";
+
 import { ArrowRightLeft, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
 
 export default function Home() {
+  const [amount, setAmount] = useState(1);
+
   return (
     <main className="relative overflow-hidden bg-(--bg-hero)">
       <div
@@ -46,10 +52,13 @@ export default function Home() {
               <p className="text-xs font-bold tracking-[0.18em] text-(--secondary)">
                 AMOUNT
               </p>
-              <div className="flex h-16 items-center rounded-xl bg-(--input-color) px-4 text-4xl font-bold text-(--title-black)">
-                <span className="mr-3 text-(--secondary)">$</span>
-                1000.00
-              </div>
+              <Input
+                type="number"
+                placeholder="1.000"
+                value={amount}
+                onChange={(e) => setAmount(Number(e.target.value))}
+                className=" bg-(--input-color) text-(--title-black) h-[64px] font-extrabold"
+              />
             </div>
 
             <div className="space-y-2">
