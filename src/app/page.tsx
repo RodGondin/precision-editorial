@@ -1,12 +1,45 @@
 "use client";
 
-import { ArrowRightLeft, ChevronDown } from "lucide-react";
+import { ArrowRightLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { getLatestRates } from "@/services/exchange";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function Home() {
   const [amount, setAmount] = useState(1);
+  const [CoinFrom, setCoinFrom] = useState("USD");
+  const [CoinTo, setCoinTo] = useState("EUR");
+  const [resultRate, setResultRate] = useState("0.000");
+  const [convertedAmount, setConvertedAmount] = useState(1);
+  const [convertedFrom, setConvertedFrom] = useState("USD");
+  const [convertedTo, setConvertedTo] = useState("EUR");
+
+  const inputFieldClassName =
+    "h-16 w-full rounded-xl border-none bg-(--input-color) px-4 text-(--title-black) font-extrabold";
+  const selectFieldClassName =
+    "w-full rounded-xl border-none bg-(--input-color) px-4 text-(--title-black) font-extrabold data-[size=default]:h-16 data-[size=sm]:h-16";
+
+  async function handleConvert() {
+    const { data } = await getLatestRates(CoinFrom, CoinTo);
+    console.log(data);
+
+    const rate = data?.[CoinTo]?.value;
+    if (!rate) return;
+    const formatedRate = rate.toFixed(3);
+
+    setResultRate(formatedRate);
+    setConvertedAmount(amount);
+    setConvertedFrom(CoinFrom);
+    setConvertedTo(CoinTo);
+  }
 
   return (
     <main className="relative overflow-hidden bg-(--bg-hero)">
@@ -57,7 +90,7 @@ export default function Home() {
                 placeholder="1.000"
                 value={amount}
                 onChange={(e) => setAmount(Number(e.target.value))}
-                className=" bg-(--input-color) text-(--title-black) h-[64px] font-extrabold"
+                className={inputFieldClassName}
               />
             </div>
 
@@ -65,16 +98,18 @@ export default function Home() {
               <p className="text-xs font-bold tracking-[0.18em] text-(--secondary)">
                 FROM
               </p>
-              <button
-                type="button"
-                className="flex h-16 w-full items-center justify-between rounded-xl bg-(--input-color) px-4 text-xl font-bold text-(--title-black)"
-              >
-                <span className="flex items-center gap-3">
-                  <span className="h-4 w-6 rounded bg-cyan-700" />
-                  USD
-                </span>
-                <ChevronDown className="size-6 text-(--secondary)" />
-              </button>
+              <Select value={CoinFrom} onValueChange={setCoinFrom}>
+                <SelectTrigger className={selectFieldClassName}>
+                  <SelectValue placeholder="Select currency" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="USD">USD</SelectItem>
+                  <SelectItem value="EUR">EUR</SelectItem>
+                  <SelectItem value="BRL">BRL</SelectItem>
+                  <SelectItem value="GBP">GBP</SelectItem>
+                  <SelectItem value="JPY">JPY</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="flex items-end justify-center md:pb-2">
@@ -90,16 +125,18 @@ export default function Home() {
               <p className="text-xs font-bold tracking-[0.18em] text-(--secondary)">
                 TO
               </p>
-              <button
-                type="button"
-                className="flex h-16 w-full items-center justify-between rounded-xl bg-(--input-color) px-4 text-xl font-bold text-(--title-black)"
-              >
-                <span className="flex items-center gap-3">
-                  <span className="h-4 w-6 rounded bg-yellow-800" />
-                  EUR
-                </span>
-                <ChevronDown className="size-6 text-(--secondary)" />
-              </button>
+              <Select value={CoinTo} onValueChange={setCoinTo}>
+                <SelectTrigger className={selectFieldClassName}>
+                  <SelectValue placeholder="Select currency" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="EUR">EUR</SelectItem>
+                  <SelectItem value="USD">USD</SelectItem>
+                  <SelectItem value="BRL">BRL</SelectItem>
+                  <SelectItem value="GBP">GBP</SelectItem>
+                  <SelectItem value="JPY">JPY</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -107,11 +144,14 @@ export default function Home() {
             <div>
               <p className="text-[28px] text-(--secondary)">Market Rate</p>
               <p className="text-[32px] font-bold text-(--title-black) md:text-[56px]">
-                1USD = 0.9241EUR
+                {`${convertedAmount}${convertedFrom} = ${resultRate}${convertedTo}`}
               </p>
             </div>
 
-            <Button className="h-16 min-w-[220px] rounded-xl text-3xl font-bold hover:bg-(--primary-hover)">
+            <Button
+              className="h-16 min-w-[220px] rounded-xl text-3xl font-bold hover:bg-(--primary-hover)"
+              onClick={handleConvert}
+            >
               Convert Now
             </Button>
           </div>
