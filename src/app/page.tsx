@@ -3,21 +3,23 @@
 import { ArrowRightLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
-import { getLatestRates } from "@/services/exchange";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useEffect, useState } from "react";
+import { getCurrencies, getLatestRates } from "@/services/exchange";
+import { CurrencySelect } from "@/components/currency-select";
 
 export default function Home() {
   const [amount, setAmount] = useState(1);
-  const [CoinFrom, setCoinFrom] = useState("USD");
-  const [CoinTo, setCoinTo] = useState("EUR");
-  const [resultRate, setResultRate] = useState("0.000");
+  const [coinFrom, setCoinFrom] = useState("USD");
+  const [coinTo, setCoinTo] = useState("EUR");
+  const [resultRate, setResultRate] = useState(0);
+  const [currencyOptions, setCurrencyOptions] = useState([
+    "USD",
+    "EUR",
+    "BRL",
+    "GBP",
+    "JPY",
+  ]);
+
   const [convertedAmount, setConvertedAmount] = useState(1);
   const [convertedFrom, setConvertedFrom] = useState("USD");
   const [convertedTo, setConvertedTo] = useState("EUR");
@@ -28,18 +30,42 @@ export default function Home() {
     "w-full rounded-xl border-none bg-(--input-color) px-4 text-(--title-black) font-extrabold data-[size=default]:h-16 data-[size=sm]:h-16";
 
   async function handleConvert() {
-    const { data } = await getLatestRates(CoinFrom, CoinTo);
+    const { data } = await getLatestRates(coinFrom, coinTo);
     console.log(data);
 
-    const rate = data?.[CoinTo]?.value;
+    const rate = data?.[coinTo]?.value;
     if (!rate) return;
-    const formatedRate = rate.toFixed(3);
 
-    setResultRate(formatedRate);
+    const convertedValue = Number((amount * rate).toFixed(3));
+
+    setResultRate(convertedValue);
+
     setConvertedAmount(amount);
-    setConvertedFrom(CoinFrom);
-    setConvertedTo(CoinTo);
+    setConvertedFrom(coinFrom);
+    setConvertedTo(coinTo);
   }
+
+  function handleSwapCoins() {
+    const from = coinFrom;
+    const to = coinTo;
+    setCoinFrom(to);
+    setCoinTo(from);
+  }
+
+  useEffect(() => {
+    async function loadCurrencies() {
+      try {
+        const { codes } = await getCurrencies();
+        if (codes.length > 0) {
+          setCurrencyOptions(codes);
+        }
+      } catch {
+        // Keeps fallback currency list when API is unavailable.
+      }
+    }
+
+    loadCurrencies();
+  }, []);
 
   return (
     <main className="relative overflow-hidden bg-(--bg-hero)">
@@ -94,50 +120,31 @@ export default function Home() {
               />
             </div>
 
-            <div className="space-y-2">
-              <p className="text-xs font-bold tracking-[0.18em] text-(--secondary)">
-                FROM
-              </p>
-              <Select value={CoinFrom} onValueChange={setCoinFrom}>
-                <SelectTrigger className={selectFieldClassName}>
-                  <SelectValue placeholder="Select currency" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="USD">USD</SelectItem>
-                  <SelectItem value="EUR">EUR</SelectItem>
-                  <SelectItem value="BRL">BRL</SelectItem>
-                  <SelectItem value="GBP">GBP</SelectItem>
-                  <SelectItem value="JPY">JPY</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <CurrencySelect
+              label="FROM"
+              value={coinFrom}
+              onValueChange={setCoinFrom}
+              options={currencyOptions}
+              triggerClassName={selectFieldClassName}
+            />
 
             <div className="flex items-end justify-center md:pb-2">
               <button
                 type="button"
-                className="grid size-14 place-items-center rounded-full border border-(--border-detail) bg-(--bg-white)"
+                className="grid size-14 place-items-center rounded-full border border-(--border-detail) bg-(--bg-white) cursor-pointer hover:bg-(--border-detail) transition-colors"
+                onClick={handleSwapCoins}
               >
                 <ArrowRightLeft className="size-6 text-(--primary)" />
               </button>
             </div>
 
-            <div className="space-y-2">
-              <p className="text-xs font-bold tracking-[0.18em] text-(--secondary)">
-                TO
-              </p>
-              <Select value={CoinTo} onValueChange={setCoinTo}>
-                <SelectTrigger className={selectFieldClassName}>
-                  <SelectValue placeholder="Select currency" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="EUR">EUR</SelectItem>
-                  <SelectItem value="USD">USD</SelectItem>
-                  <SelectItem value="BRL">BRL</SelectItem>
-                  <SelectItem value="GBP">GBP</SelectItem>
-                  <SelectItem value="JPY">JPY</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <CurrencySelect
+              label="TO"
+              value={coinTo}
+              onValueChange={setCoinTo}
+              options={currencyOptions}
+              triggerClassName={selectFieldClassName}
+            />
           </div>
 
           <div className="mt-8 grid items-end gap-6 md:grid-cols-[1fr_auto]">

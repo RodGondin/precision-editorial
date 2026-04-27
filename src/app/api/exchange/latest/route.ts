@@ -1,33 +1,26 @@
 import { NextResponse } from "next/server";
-
-const CURRENCY_API_URL = "https://api.currencyapi.com/v3";
+import { fetchLatestRates } from "@/lib/currencyapi";
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const base_currency = searchParams.get("base_currency") || "USD";
-    const currency = searchParams.get("currencies") || "EUR";
+    const baseCurrency =
+      searchParams.get("base") || searchParams.get("base_currency") || "USD";
+    const currencies = searchParams.get("currencies") || "EUR";
 
-    if (!currency) {
+    if (!currencies) {
       return NextResponse.json(
-        { error: "Currency is required" },
+        { error: "Query param 'currencies' is required" },
         { status: 400 },
       );
     }
 
-    const response = await fetch(
-      `${CURRENCY_API_URL}/latest?&currencies=${currency}&base_currency=${base_currency}`,
-      {
-        headers: {
-          apikey: process.env.CURRENCY_API_KEY!,
-        },
-        cache: "no-store",
-      },
-    );
-
-    const data = await response.json();
+    const { response, data } = await fetchLatestRates({
+      baseCurrency,
+      currencies,
+    });
     return NextResponse.json(data, { status: response.status });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch exchange rates" },
       { status: 500 },
