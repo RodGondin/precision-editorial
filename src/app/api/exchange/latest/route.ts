@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { fetchLatestRates } from "@/lib/currencyapi";
+import { fetchLatestRates } from "@/lib/currency-api";
 
 export async function GET(req: Request) {
   try {

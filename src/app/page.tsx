@@ -61,6 +61,7 @@ export default function Home() {
         }
       } catch {
         // Keeps fallback currency list when API is unavailable.
+        throw new Error("Failed to load currency list");
       }
     }
 
