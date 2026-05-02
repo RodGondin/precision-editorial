@@ -6,19 +6,35 @@ import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { getCurrencies, getLatestRates } from "@/services/exchange";
 import { CurrencySelect } from "@/components/currency-select";
+import { getAllCountryFlags } from "@/services/countries";
 
 export default function Home() {
   const [amount, setAmount] = useState(1);
   const [coinFrom, setCoinFrom] = useState("USD");
   const [coinTo, setCoinTo] = useState("EUR");
   const [resultRate, setResultRate] = useState(0);
-  const [currencyOptions, setCurrencyOptions] = useState([
+  const [currencyCodes, setCurrencyCodes] = useState([
     "USD",
     "EUR",
     "BRL",
     "GBP",
     "JPY",
   ]);
+  const [currencyMetaMap, setCurrencyMetaMap] = useState<
+    Record<string, { code: string; name?: string; symbol?: string }>
+  >({});
+  const [currencyFlagsMap, setCurrencyFlagsMap] = useState<
+    Record<
+      string,
+      {
+        currency: string;
+        country: string | null;
+        cca2: string | null;
+        flag: string | null;
+        flagAlt: string | null;
+      }
+    >
+  >({});
 
   const [convertedAmount, setConvertedAmount] = useState(1);
   const [convertedFrom, setConvertedFrom] = useState("USD");
@@ -55,18 +71,35 @@ export default function Home() {
   useEffect(() => {
     async function loadCurrencies() {
       try {
-        const { codes } = await getCurrencies();
+        const { codes, data } = await getCurrencies();
         if (codes.length > 0) {
-          setCurrencyOptions(codes);
+          setCurrencyCodes(codes);
+          setCurrencyMetaMap(data);
         }
       } catch {
         // Keeps fallback currency list when API is unavailable.
-        throw new Error("Failed to load currency list");
+      }
+    }
+
+    async function loadCurrencyFlags() {
+      try {
+        const { data } = await getAllCountryFlags();
+        setCurrencyFlagsMap(data);
+      } catch {
+        // Keeps working without flags when countries API is unavailable.
       }
     }
 
     loadCurrencies();
+    loadCurrencyFlags();
   }, []);
+
+  const currencyOptions = currencyCodes.map((code) => ({
+    code,
+    name: currencyMetaMap[code]?.name ?? code,
+    flag: currencyFlagsMap[code]?.flag ?? null,
+    flagAlt: currencyFlagsMap[code]?.flagAlt ?? null,
+  }));
 
   return (
     <main className="relative overflow-hidden bg-(--bg-hero)">

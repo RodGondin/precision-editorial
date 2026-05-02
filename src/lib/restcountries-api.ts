@@ -1,6 +1,6 @@
-const RESTCOUNTRIES_API_URL = "https://restcountries.com/v3.1/currency";
+const RESTCOUNTRIES_API_URL = "https://restcountries.com/v3.1";
 
-type RestCountriesCurrencyResponse = Array<{
+export type RestCountry = {
   name?: {
     common?: string;
   };
@@ -17,19 +17,36 @@ type RestCountriesCurrencyResponse = Array<{
       symbol?: string;
     }
   >;
-}>;
+};
 
-export async function fetchCountryInfoByCurrency(params: { currency: string }) {
+export type RestCountriesCurrencyResponse = RestCountry[];
+
+export async function fetchCountryInfoByCurrency(params: {
+  currency: string;
+}) {
   const { currency } = params;
 
   const response = await fetch(
-    `${RESTCOUNTRIES_API_URL}/${currency}?fields=name,cca2,flags,currencies`,
+    `${RESTCOUNTRIES_API_URL}/currency/${currency}?fields=name,cca2,flags,currencies`,
     {
       cache: "no-store",
     },
   );
 
   const data = (await response.json()) as RestCountriesCurrencyResponse;
+
+  return { response, data };
+}
+
+export async function fetchAllCountries() {
+  const response = await fetch(
+    `${RESTCOUNTRIES_API_URL}/all?fields=name,cca2,flags,currencies`,
+    {
+      cache: "no-store",
+    },
+  );
+
+  const data = (await response.json()) as RestCountry[];
 
   return { response, data };
 }
