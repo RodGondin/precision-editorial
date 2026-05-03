@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRightLeft } from "lucide-react";
+import { ArrowRightLeft, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
@@ -9,7 +9,7 @@ import { CurrencySelect } from "@/components/currency-select";
 import { getAllCountryFlags } from "@/services/countries";
 
 export default function Home() {
-  const [amount, setAmount] = useState(1);
+  const [amount, setAmount] = useState("1");
   const [coinFrom, setCoinFrom] = useState("USD");
   const [coinTo, setCoinTo] = useState("EUR");
   const [resultRate, setResultRate] = useState(0);
@@ -52,11 +52,15 @@ export default function Home() {
     const rate = data?.[coinTo]?.value;
     if (!rate) return;
 
-    const convertedValue = Number((amount * rate).toFixed(3));
+    const numericAmount = Number(amount);
+
+    if (!amount || Number.isNaN(numericAmount)) return;
+
+    const convertedValue = Number((numericAmount * rate).toFixed(3));
 
     setResultRate(convertedValue);
 
-    setConvertedAmount(amount);
+    setConvertedAmount(numericAmount);
     setConvertedFrom(coinFrom);
     setConvertedTo(coinTo);
   }
@@ -72,6 +76,7 @@ export default function Home() {
     async function loadCurrencies() {
       try {
         const { codes, data } = await getCurrencies();
+        console.info("🚀 ~ loadCurrencies ~ data:", data);
         if (codes.length > 0) {
           setCurrencyCodes(codes);
           setCurrencyMetaMap(data);
@@ -145,13 +150,16 @@ export default function Home() {
               <p className="text-xs font-bold tracking-[0.18em] text-(--secondary)">
                 AMOUNT
               </p>
-              <Input
-                type="number"
-                placeholder="1.000"
-                value={amount}
-                onChange={(e) => setAmount(Number(e.target.value))}
-                className={inputFieldClassName}
-              />
+              <div className="relative">
+                <DollarSign className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-(--secondary)" />
+                <Input
+                  type="number"
+                  placeholder="1.000"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className={`${inputFieldClassName} pl-12`}
+                />
+              </div>
             </div>
 
             <CurrencySelect
