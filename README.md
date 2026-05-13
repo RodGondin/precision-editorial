@@ -1,36 +1,133 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Precision Editorial
+
+Precision Editorial is a currency conversion and market data interface built with Next.js. The project currently includes a landing-page hero with currency selection, live exchange-rate integration, authentication flows with Better Auth, and supporting API routes for currency metadata and flag resolution.
+
+## Stack
+
+- Next.js 16 (App Router)
+- React 19
+- TypeScript
+- Tailwind CSS v4
+- shadcn/ui
+- Better Auth
+- MongoDB + Mongoose
+- CurrencyAPI
+- Rest Countries API
+
+## Current Features
+
+- Hero section with:
+  - amount input
+  - currency selectors
+  - conversion action
+  - flag rendering for selected currencies
+- Auth screens:
+  - register
+  - sign in
+- Better Auth integration with MongoDB
+- Profile persistence linked to authenticated users
+- Internal API routes acting as a BFF for external APIs
+
+## Project Structure
+
+```text
+src/
+  app/
+    api/
+      auth/
+      countries/
+      exchange/
+      profiles/
+    register/
+    sign-in/
+  components/
+    ui/
+  lib/
+  models/
+  services/
+```
+
+Responsibility split:
+
+- `src/lib/*`: integration with external providers or shared server utilities
+- `src/app/api/*`: Next.js route handlers / BFF layer
+- `src/services/*`: frontend-facing functions that call internal API routes
+- `src/components/*`: reusable UI components
+- `src/models/*`: Mongoose models
+
+## Environment Variables
+
+Create a `.env.local` file in the project root:
+
+```env
+MONGODB_URI=your_mongodb_connection_string
+BETTER_AUTH_SECRET=your_better_auth_secret
+NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:3000
+CURRENCY_API_KEY=your_currencyapi_key
+```
+
+Notes:
+
+- Do not commit real credentials to GitHub.
+- If you change environment variables, restart the dev server.
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Available Scripts
 
-## Learn More
+```bash
+npm run dev
+npm run build
+npm run start
+npm run lint
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Internal API Routes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Examples of currently available routes:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `GET /api/exchange/latest?base=USD&currencies=EUR,BRL`
+- `GET /api/exchange/currencies`
+- `GET /api/countries/all`
+- `GET /api/profiles/me`
+- `POST /api/profiles/me`
 
-## Deploy on Vercel
+These routes are used to:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- hide external provider details from the frontend
+- normalize third-party responses
+- keep API keys on the server
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Authentication
+
+The project uses Better Auth with MongoDB as the auth storage layer.
+
+Current auth flow:
+
+- user signs up with email and password
+- auth user is created by Better Auth
+- application profile is created separately and linked by `authUserId`
+
+## Notes
+
+- The project is still in active development.
+- UI, API contracts, and feature scope will continue to evolve.
+- This README is intended as a starting point and can be refined as the codebase grows.

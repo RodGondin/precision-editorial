@@ -134,11 +134,11 @@ export default function Home() {
 
       <section className="relative mx-auto max-w-[1120px] px-6 pb-24 pt-16 md:pt-24">
         <header className="mx-auto max-w-[860px] text-center">
-          <h1 className="text-balance text-4xl font-extrabold leading-tight text-(--title-black) md:text-6xl">
+          <h1 className="text-balance text-4xl font-extrabold leading-tight text-(--bg-foreground) md:text-6xl">
             Data Integrity Meets{" "}
             <span className="text-(--primary-light)">Financial Precision</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-[760px] text-lg text-[#2a3f6f] md:text-3xl">
+          <p className="mx-auto mt-6 max-w-[760px] text-lg text-(--bg-foreground) md:text-3xl">
             Institutional-grade currency exchange rates for global markets.
             Accurate, real-time, and reliable.
           </p>
@@ -193,7 +193,7 @@ export default function Home() {
             <div>
               <p className="text-[28px] text-(--secondary)">Market Rate</p>
               <p className="text-[32px] font-bold text-(--title-black) md:text-[56px]">
-                {`${convertedAmount}${convertedFrom} = ${resultRate}${convertedTo}`}
+                {`${convertedAmount} ${convertedFrom} = ${resultRate} ${convertedTo}`}
               </p>
             </div>
 
